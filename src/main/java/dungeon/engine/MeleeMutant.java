@@ -1,14 +1,21 @@
 package dungeon.engine;
 
 public class MeleeMutant implements Enemy {
+    private String symbol;
+    private int damage;
+
+    public MeleeMutant() {
+        this.symbol = "M";
+        this.damage = 2; // Fixed ranged attack damage
+    }
     @Override
     public String getSymbol() {
-        return "M";
+        return symbol;
     }
 
     @Override
     public int getDamage() {
-        return 2;
+        return damage;
     }
 
     @Override

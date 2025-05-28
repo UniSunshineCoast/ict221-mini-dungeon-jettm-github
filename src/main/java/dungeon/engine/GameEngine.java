@@ -27,6 +27,9 @@ public class GameEngine {
     public Cell[][] getMap() {
         return map;
     }
+    public Player getPlayer() {
+        return player;
+    }
     public void printMap() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
