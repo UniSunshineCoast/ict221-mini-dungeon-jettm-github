@@ -2,6 +2,7 @@ package dungeon.engine;
 
 import java.util.Random;
 
+
 public class RangedMutant implements Enemy {
     private String symbol;
     private int damage;
@@ -31,11 +32,10 @@ public class RangedMutant implements Enemy {
         int px = player.getX();
         int py = player.getY();
         Random rand = new Random();
-
         // Check vertical or horizontal alignment within 2 cells
         if ((myX == px && Math.abs(myY - py) <= 2) || (myY == py && Math.abs(myX - px) <= 2)) {
             if (!hasWallBetween(map, myX, myY, px, py)) {
-                if (rand.nextBoolean()) {
+                if (rand.nextInt(2) == 1) {
                     player.addHP(-damage);
                     System.out.println("Ranged mutant shot you from afar! You lost " + damage + " HP.");
                 } else {

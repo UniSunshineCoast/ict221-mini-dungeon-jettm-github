@@ -34,6 +34,9 @@ public class Cell extends StackPane{
         this.item = item;
     }
 
+    public boolean isNull() {
+        return item == null;
+    }
     public void enter(Player player) {
         if (item != null) {
             item.onEnter(player, this);

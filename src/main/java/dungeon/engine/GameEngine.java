@@ -1,15 +1,23 @@
 package dungeon.engine;
 
 import java.util.Scanner;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 
 public class GameEngine {
     private Cell[][] map;
     private Player player;
     private int size;
     private final int maxSteps = 100;
+    private final String SCORE_FILE = "top_scores.txt";
+    private final int difficulty;
+    private int currentLevel = 1;
 
     public GameEngine(int difficulty) {
-        this.map = MapGenerator.generateFixedLevel(difficulty);
+        this.difficulty = difficulty;
+        this.map = MapGenerator.generateSpecificLevel(difficulty,currentLevel);
         this.size = map.length;
         this.player = new Player();
         for (int i = 0; i < size; i++) {
@@ -55,10 +63,18 @@ public class GameEngine {
         int y = player.getY();
         int newX = x, newY = y;
         switch (dir) {
-            case "u": newX--; break;
-            case "d": newX++; break;
-            case "l": newY--; break;
-            case "r": newY++; break;
+            case "u":
+                newX--;
+                break;
+            case "d":
+                newX++;
+                break;
+            case "l":
+                newY--;
+                break;
+            case "r":
+                newY++;
+                break;
             default:
                 System.out.println("Invalid command.");
                 return;
@@ -69,6 +85,67 @@ public class GameEngine {
         }
         player.moveTo(newX, newY);
         map[newX][newY].enter(player);
+        if (!(map[newX][newY].getItem() == null) && (map[newX][newY].getItem().getSymbol().equals("L"))) {
+            currentLevel++;
+            if (currentLevel < 3) {
+                map = MapGenerator.generateSpecificLevel(difficulty, currentLevel);
+            }
+        }
+    }
+
+    private void triggerRangedMutantActions() {
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
+                Item item = map[i][j].getItem();
+                if (!(item==null) && item.getSymbol().equals("R")) {
+                    ((RangedMutant) item).act(map, player, i, j);
+                }
+            }
+        }
+    }
+
+    public void saveScore() {
+        List<String> scores = new ArrayList<>();
+        String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        String entry = player.getScore() + ", " + now;
+
+        try {
+            File file = new File(SCORE_FILE);
+            if (file.exists()) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        scores.add(line);
+                    }
+                }
+            }
+            scores.add(entry);
+            scores.sort((a, b) -> Integer.parseInt(b.split(",")[0].trim()) - Integer.parseInt(a.split(",")[0].trim()));
+            if (scores.size() > 5) {
+                scores = scores.subList(0, 5);
+            }
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                for (String s : scores) {
+                    writer.write(s);
+                    writer.newLine();
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to save score: " + e.getMessage());
+        }
+    }
+
+    public List<String> getTopScores() {
+        List<String> scores = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(SCORE_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                scores.add(line);
+            }
+        } catch (IOException e) {
+            System.out.println("No scores found.");
+        }
+        return scores;
     }
 
     public static void main(String[] args) {
@@ -84,19 +161,28 @@ public class GameEngine {
         System.out.println("Welcome to MiniDungeon Fixed Map Mode!");
         engine.printMap();
 
-        while (engine.player.getHP() > 0 && engine.player.getSteps() < engine.maxSteps) {
+        while (engine.player.getHP() > 0 && engine.player.getSteps() < engine.maxSteps && engine.currentLevel < 3) {
             System.out.print("Move (u/d/l/r): ");
             String cmd = sc.nextLine();
             engine.movePlayer(cmd);
+            engine.triggerRangedMutantActions();
             engine.printMap();
         }
 
         if (engine.player.getHP() <= 0) {
             System.out.println("You died. Game over.");
+            engine.player.addScore(-1);
         } else if (engine.player.getSteps() >= engine.maxSteps) {
+            engine.player.addScore(-1);
             System.out.println("You ran out of steps. Game over.");
         } else {
+            System.out.println("WINNER WINNER CHICKEN DINNER!");
             System.out.println("Thanks for playing!");
+
+        }
+        engine.saveScore();
+        for (int i = 0; i < engine.getTopScores().size(); i++) {
+            System.out.println("#" + Integer.toString(i+1) + " " + engine.getTopScores().get(i));
         }
     }
 }

@@ -4,6 +4,7 @@ import dungeon.engine.Cell;
 import dungeon.engine.GameEngine;
 import javafx.fxml.FXML;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 
 public class Controller {
     @FXML
@@ -25,7 +26,9 @@ public class Controller {
         //Loop through map board and add each cell into grid pane
         for(int i = 0; i < engine.getSize(); i++) {
             for (int j = 0; j < engine.getSize(); j++) {
+                System.out.println("i: " + i + ", j: " + j);
                 Cell cell = engine.getMap()[i][j];
+                StackPane stackPane = new StackPane();
                 gridPane.add(cell, j, i);
             }
         }

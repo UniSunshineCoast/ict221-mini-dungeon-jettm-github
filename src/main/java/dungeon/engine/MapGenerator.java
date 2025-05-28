@@ -3,8 +3,7 @@ package dungeon.engine;
 import java.util.Random;
 
 public class MapGenerator {
-    public static Cell[][] generateFixedLevel(int difficulty) {
-        String[] rows = {
+    private static String[] LEVEL_ONE = {
                 ". . . # . . . . . .",
                 ". # . # . # # . # #",
                 ". # . . . . . . . .",
@@ -15,14 +14,37 @@ public class MapGenerator {
                 ". # . . # . . # # .",
                 "# # . . # # . # . .",
                 "E . . . . . . # L ."
-        };
+    };
+    private static String[] LEVEL_TWO = {
+            ". . . # . . . . . .",
+            "# # . # . # # L # .",
+            ". . . . . . # # # .",
+            ". # . . . . . . . .",
+            ". # # # # # . . . .",
+            ". . . . . # # # # #",
+            ". # . # . # . . . .",
+            ". # . # . . . # # .",
+            ". # . # # # # # . .",
+            ". . . . # . . . E ."
 
-        int size = rows.length;
+    };
+
+    public static Cell[][] generateSpecificLevel(int difficulty, int lev) {
+        String[] level = LEVEL_ONE;
+        if (lev == 2) {
+            level = LEVEL_TWO;
+        }
+
+        return generateLevel(level, difficulty);
+    }
+
+    private static Cell[][] generateLevel(String[] level, int difficulty) {
+        int size = level.length;
         Cell[][] map = new Cell[size][size];
         Random rand = new Random();
 
         for (int i = 0; i < size; i++) {
-            String[] symbols = rows[i].split(" ");
+            String[] symbols = level[i].split(" ");
             for (int j = 0; j < size; j++) {
                 Cell cell = new Cell();
                 switch (symbols[j]) {
