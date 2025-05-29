@@ -5,7 +5,6 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-
 public class GameEngine {
     private Cell[][] map;
     private Player player;
@@ -18,6 +17,7 @@ public class GameEngine {
     public GameEngine(int difficulty) {
         this.difficulty = difficulty;
         this.map = MapGenerator.generateSpecificLevel(difficulty,currentLevel);
+
         this.size = map.length;
         this.player = new Player();
         for (int i = 0; i < size; i++) {

@@ -1,6 +1,8 @@
 package dungeon.engine;
 
 import java.util.Random;
+import javafx.scene.text.Text;
+
 
 public class MapGenerator {
     private static String[] LEVEL_ONE = {
@@ -46,7 +48,9 @@ public class MapGenerator {
         for (int i = 0; i < size; i++) {
             String[] symbols = level[i].split(" ");
             for (int j = 0; j < size; j++) {
+                Text text = new Text(symbols[j]);
                 Cell cell = new Cell();
+
                 switch (symbols[j]) {
                     case "#":
                         cell.setWall(true);
@@ -58,6 +62,8 @@ public class MapGenerator {
                         cell.setItem(new Ladder());
                         break;
                 }
+                cell.getChildren().add(text);
+                cell.setPrefSize(50,50);
                 map[i][j] = cell;
             }
         }
