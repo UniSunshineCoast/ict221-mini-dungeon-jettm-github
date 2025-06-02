@@ -2,9 +2,7 @@ package dungeon.engine;
 
 public class Trap implements Enemy {
     @Override
-    public String getSymbol() {
-        return "T";
-    }
+    public String getSymbol() {return "T";}
 
     @Override
     public int getDamage() {
