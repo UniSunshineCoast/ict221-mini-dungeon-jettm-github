@@ -1,6 +1,8 @@
 package dungeon.engine;
 
-public interface Item {
+import java.io.Serializable;
+
+public interface Item extends Serializable {
     String getSymbol();
-    void onEnter(Player player, Cell cell);
+    String onEnter(Player player, Cell cell);
 }

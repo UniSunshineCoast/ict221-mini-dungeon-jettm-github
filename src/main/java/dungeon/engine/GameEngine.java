@@ -1,11 +1,15 @@
 package dungeon.engine;
 
-import java.util.Scanner;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Scanner;
 
-public class GameEngine {
+
+public class GameEngine implements Serializable {
     private Cell[][] map;
     private Player player;
     private int size;
@@ -13,117 +17,165 @@ public class GameEngine {
     private final String SCORE_FILE = "top_scores.txt";
     private final int difficulty;
     private int currentLevel = 1;
+    private List<String> log = new ArrayList();
+    private final List<String> sysLog = new ArrayList<>();
+    private boolean reachedSecondLadder = false;
+
+
+
+    public List<String> getLog() {
+        return new ArrayList(this.log);
+    }
+
+    public void clearLog() {
+        this.log.clear();
+    }
+
+    public void log(String s) {
+        if (!s.isEmpty()) {
+            this.log.add(s);
+        }
+    }
 
     public GameEngine(int difficulty) {
         this.difficulty = difficulty;
-        this.map = MapGenerator.generateSpecificLevel(difficulty,currentLevel);
-
-        this.size = map.length;
+        this.map = MapGenerator.generateSpecificLevel(difficulty, this.currentLevel);
+        this.size = this.map.length;
         this.player = new Player();
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (map[i][j].isEntry()) {
-                    player.moveTo(i, j);
+
+        for (int i = 0; i < this.size; ++i) {
+            for (int j = 0; j < this.size; ++j) {
+                if (this.map[i][j].isEntry()) {
+                    this.player.moveTo(i, j);
                     return;
                 }
             }
         }
+
     }
+
     public int getSize() {
-        return size;
+        return this.size;
     }
+
     public Cell[][] getMap() {
-        return map;
+        return this.map;
     }
+
     public Player getPlayer() {
-        return player;
+        return this.player;
     }
+
     public void printMap() {
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (player.getX() == i && player.getY() == j) {
+        for (int i = 0; i < this.size; ++i) {
+            for (int j = 0; j < this.size; ++j) {
+                if (this.player.getX() == i && this.player.getY() == j) {
                     System.out.print("P ");
-                } else if (map[i][j].isWall()) {
+                } else if (this.map[i][j].isWall()) {
                     System.out.print("# ");
-                } else if (map[i][j].isEntry()) {
+                } else if (this.map[i][j].isEntry()) {
                     System.out.print("E ");
                 } else {
-                    Item item = map[i][j].getItem();
-                    System.out.print((item != null ? item.getSymbol() : ".") + " ");
+                    Item item = this.map[i][j].getItem();
+                    String var10001 = item != null ? item.getSymbol() : ".";
+                    System.out.print(var10001 + " ");
                 }
             }
+
             System.out.println();
         }
-        System.out.printf("HP: %d | Score: %d | Steps: %d\n\n",
-                player.getHP(), player.getScore(), player.getSteps());
+
+        System.out.printf("HP: %d | Score: %d | Steps: %d\n\n", this.player.getHP(), this.player.getScore(), this.player.getSteps());
     }
 
     public void movePlayer(String dir) {
-        int x = player.getX();
-        int y = player.getY();
-        int newX = x, newY = y;
+        int x = this.player.getX();
+        int y = this.player.getY();
+        int newX = x;
+        int newY = y;
         switch (dir) {
             case "u":
-                newX--;
+                newX = x - 1;
                 break;
             case "d":
-                newX++;
+                newX = x + 1;
                 break;
             case "l":
-                newY--;
+                newY = y - 1;
                 break;
             case "r":
-                newY++;
+                newY = y + 1;
                 break;
             default:
-                System.out.println("Invalid command.");
+                log("Invalid command.");
                 return;
         }
-        if (newX < 0 || newY < 0 || newX >= size || newY >= size || map[newX][newY].isWall()) {
-            System.out.println("You hit a wall.");
-            return;
-        }
-        player.moveTo(newX, newY);
-        map[newX][newY].enter(player);
-        if (!(map[newX][newY].getItem() == null) && (map[newX][newY].getItem().getSymbol().equals("L"))) {
-            currentLevel++;
-            if (currentLevel < 3) {
-                map = MapGenerator.generateSpecificLevel(difficulty, currentLevel);
+
+        if (newX >= 0 && newY >= 0 && newX < this.size && newY < this.size && !this.map[newX][newY].isWall()) {
+            this.player.moveTo(newX, newY);
+
+            log(this.map[newX][newY].enter(this.player));
+
+
+            if (this.map[newX][newY].getItem() != null && this.map[newX][newY].getItem().getSymbol().equals("L")) {
+                ++this.currentLevel;
+                if (this.currentLevel < 3) {
+                    this.map = MapGenerator.generateSpecificLevel(this.difficulty, this.currentLevel);
+                } else {
+                    reachedSecondLadder = true;
+                }
+
             }
+            triggerRangedMutantActions();
+
+        } else {
+            log("You hit a wall.");
         }
+    }
+
+    public void endGame(boolean win) {
+        String result = win ? "Game Won!" : "Game Over! Please try again!";
+        log(result);
+        saveScore();
+
+
     }
 
     private void triggerRangedMutantActions() {
-        for (int i = 0; i < map.length; i++) {
-            for (int j = 0; j < map[i].length; j++) {
-                Item item = map[i][j].getItem();
-                if (!(item==null) && item.getSymbol().equals("R")) {
-                    ((RangedMutant) item).act(map, player, i, j);
+        for (int i = 0; i < this.map.length; ++i) {
+            for (int j = 0; j < this.map[i].length; ++j) {
+                Item item = this.map[i][j].getItem();
+                if (item != null && item.getSymbol().equals("R")) {
+                    log(((RangedMutant) item).act(this.map, this.player, i, j));
                 }
             }
         }
+
     }
 
     public void saveScore() {
-        List<String> scores = new ArrayList<>();
-        String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-        String entry = player.getScore() + ", " + now;
+        List<String> scores = new ArrayList();
+        String now = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(new Date());
+        int var10000 = this.player.getScore();
+        String entry = var10000 + ", " + now;
 
         try {
-            File file = new File(SCORE_FILE);
+            File file = new File("top_scores.txt");
             if (file.exists()) {
+                String line;
                 try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                    String line;
                     while ((line = reader.readLine()) != null) {
                         scores.add(line);
                     }
                 }
             }
+
             scores.add(entry);
             scores.sort((a, b) -> Integer.parseInt(b.split(",")[0].trim()) - Integer.parseInt(a.split(",")[0].trim()));
             if (scores.size() > 5) {
                 scores = scores.subList(0, 5);
             }
+
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                 for (String s : scores) {
                     writer.write(s);
@@ -133,57 +185,120 @@ public class GameEngine {
         } catch (IOException e) {
             System.out.println("Failed to save score: " + e.getMessage());
         }
+
     }
 
     public List<String> getTopScores() {
-        List<String> scores = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(SCORE_FILE))) {
-            String line;
+        List<String> scores = new ArrayList();
+        int i = 1;
+        String line;
+        try (BufferedReader reader = new BufferedReader(new FileReader("top_scores.txt"))) {
             while ((line = reader.readLine()) != null) {
-                scores.add(line);
+                scores.add("#" + i + "  " + line);
+                i++;
             }
-        } catch (IOException e) {
+        } catch (IOException var7) {
             System.out.println("No scores found.");
         }
+
         return scores;
     }
+    public boolean isGameWon() {
+        return reachedSecondLadder;
+    }
+
+    public String checkGameStatus() {
+        if (isGameWon()) {
+            log("You reached the ladder! You win!");
+            return "WIN";
+        }
+        if (player.getHP() <= 0) {
+            log("You died! Game over.");
+            return "LOSE";
+        }
+        if (player.getSteps() >= 100) {
+            log("You ran out of steps! Game over.");
+            return "LOSE";
+        }
+        return "CONTINUE";
+    }
+
+    // Save the current game state
+    public void saveGame(String filename) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
+            out.writeObject(this);
+            log("Game saved successfully.");
+        } catch (IOException e) {
+            log("Failed to save game: " + e.getMessage());
+        }
+    }
+
+    // Load the game state
+    public static GameEngine loadGame(String filename) {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
+            GameEngine engine = (GameEngine) in.readObject();
+            engine.log("Game loaded successfully.");
+            return engine;
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter difficulty (0-10, default 3): ");
         String input = sc.nextLine();
         int difficulty = 3;
+
         try {
             difficulty = Math.max(0, Math.min(10, Integer.parseInt(input)));
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException var6) {
+        }
 
         GameEngine engine = new GameEngine(difficulty);
         System.out.println("Welcome to MiniDungeon Fixed Map Mode!");
         engine.printMap();
 
-        while (engine.player.getHP() > 0 && engine.player.getSteps() < engine.maxSteps && engine.currentLevel < 3) {
+        while (engine.player.getHP() > 0) {
+            int var10000 = engine.player.getSteps();
+            Objects.requireNonNull(engine);
+            if (var10000 >= 100 || engine.currentLevel >= 3) {
+                break;
+            }
+
             System.out.print("Move (u/d/l/r): ");
             String cmd = sc.nextLine();
             engine.movePlayer(cmd);
-            engine.triggerRangedMutantActions();
+            for (String message : engine.getLog()) {
+                System.out.println(message);
+            }
+            engine.clearLog();
             engine.printMap();
         }
-
         if (engine.player.getHP() <= 0) {
-            System.out.println("You died. Game over.");
+            engine.log("You died. Game over.");
             engine.player.addScore(-1);
-        } else if (engine.player.getSteps() >= engine.maxSteps) {
-            engine.player.addScore(-1);
-            System.out.println("You ran out of steps. Game over.");
         } else {
-            System.out.println("WINNER WINNER CHICKEN DINNER!");
-            System.out.println("Thanks for playing!");
+            int var8 = engine.player.getSteps();
+            Objects.requireNonNull(engine);
+            if (var8 >= 100) {
+                engine.player.addScore(-1);
+                engine.log("You ran out of steps. Game over.");
+            } else {
+                engine.log("WINNER WINNER CHICKEN DINNER!");
+                engine.log("Thanks for playing!");
+            }
+        }
 
-        }
         engine.saveScore();
-        for (int i = 0; i < engine.getTopScores().size(); i++) {
-            System.out.println("#" + Integer.toString(i+1) + " " + engine.getTopScores().get(i));
+
+        for (int i = 0; i < engine.getTopScores().size(); ++i) {
+            PrintStream var9 = System.out;
+            String var10001 = Integer.toString(i + 1);
+            var9.println("#" + var10001 + " " + (String) engine.getTopScores().get(i));
         }
+
     }
 }
-

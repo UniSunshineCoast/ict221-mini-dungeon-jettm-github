@@ -1,38 +1,63 @@
-
 package dungeon.engine;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class MapGeneratorTest {
+public class MapGeneratorTest {
 
     @Test
-    void testGenerateFixedLevelSize() {
-        Cell[][] map = MapGenerator.generateFixedLevel(3);
-        assertEquals(10, map.length);
-        assertEquals(10, map[0].length);
-    }
-
-    @Test
-    void testItemPlacementCounts() {
-        Cell[][] map = MapGenerator.generateFixedLevel(3);
-        int trapCount = 0, goldCount = 0, meleeCount = 0, potionCount = 0, rangedCount = 0;
-
-        for (Cell[] row : map) {
-            for (Cell cell : row) {
-                Item item = cell.getItem();
-                if (item instanceof Trap) trapCount++;
-                else if (item instanceof Gold) goldCount++;
-                else if (item instanceof MeleeMutant) meleeCount++;
-                else if (item instanceof HealthPotion) potionCount++;
-                else if (item instanceof RangedMutant) rangedCount++;
-            }
+    public void testGenerateMapNotNull() {
+        for (int i=1; i<3;i++) { //Testing Both Maps
+            Cell[][] map = MapGenerator.generateSpecificLevel(3,i);
+            assertNotNull(map);
         }
-
-        assertEquals(5, trapCount);
-        assertEquals(5, goldCount);
-        assertEquals(3, meleeCount);
-        assertEquals(2, potionCount);
-        assertEquals(3, rangedCount); // difficulty = 3
     }
+
+    @Test
+    public void testGenerateMapCorrectSize() {
+        for (int i=1; i<3;i++) { //Testing Both Maps
+        Cell[][] map = MapGenerator.generateSpecificLevel(3, i);
+        assertEquals(10, map.length);
+        for (Cell[] row : map) {
+            assertEquals(10, row.length);
+        }
+        }
+    }
+
+    @Test
+    public void testCorrectNumberOfItems() {
+        for (int level = 1; level <= 3; level++) {
+            int difficulty = 4;
+            Cell[][] map = MapGenerator.generateSpecificLevel(difficulty, level);
+
+            int traps = 0, gold = 0, melee = 0, ranged = 0, potions = 0, ladders = 0, entries = 0;
+
+            for (Cell[] cells : map) {
+                for (Cell cell : cells) {
+                    if (cell.isEntry()){entries++;}
+                    if (cell.getItem() != null) {
+                        Item item = cell.getItem();
+                        switch (item.getSymbol()) {
+                            case "T" -> traps++;
+                            case "G" -> gold++;
+                            case "M" -> melee++;
+                            case "R" -> ranged++;
+                            case "H" -> potions++;
+                            case "L" -> ladders++;
+                        }
+                    }
+                }
+            }
+
+        assertEquals(5, traps);
+        assertEquals(5, gold);
+        assertEquals(3, melee);
+        assertEquals(difficulty, ranged);
+        assertEquals(2, potions);
+        assertEquals(1, ladders);
+        assertEquals(1, entries);
+
+        }
+    }
+
 }

@@ -7,8 +7,8 @@ public class Trap implements Item {
     }
 
     @Override
-    public void onEnter(Player player, Cell cell) {
+    public String onEnter(Player player, Cell cell) {
         player.addHP(-2);
-        System.out.println("You fell into a trap.");
+        return ("You fell into a trap. You lost 2HP");
     }
 }

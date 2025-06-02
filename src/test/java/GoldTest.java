@@ -1,17 +1,17 @@
-
 package dungeon.engine;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class GoldTest {
+public class GoldTest {
 
     @Test
-    void testOnEnterIncreasesScore() {
+    public void testOnEnterIncreasesScore() {
+        Gold gold = new Gold();
         Player player = new Player();
         Cell cell = new Cell();
-        Gold gold = new Gold();
+        int initialScore = player.getScore();
         gold.onEnter(player, cell);
-        assertTrue(player.getScore() > 0);
+        assertTrue(player.getScore() > initialScore);
     }
 }

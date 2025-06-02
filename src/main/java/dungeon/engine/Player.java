@@ -1,6 +1,8 @@
 package dungeon.engine;
 
-public class Player {
+import java.io.Serializable;
+
+public class Player implements Serializable {
     private int hp = 10;
     private int score = 0;
     private int steps = 0;

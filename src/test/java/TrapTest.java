@@ -1,18 +1,17 @@
-
 package dungeon.engine;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class TrapTest {
+public class TrapTest {
 
     @Test
-    void testOnEnterReducesHP() {
+    public void testOnEnterDecreasesHP() {
+        Trap trap = new Trap();
         Player player = new Player();
         Cell cell = new Cell();
-        int originalHP = player.getHP();
-        Trap trap = new Trap();
+        int initialHP = player.getHP();
         trap.onEnter(player, cell);
-        assertTrue(player.getHP() < originalHP);
+        assertTrue(player.getHP() < initialHP);
     }
 }

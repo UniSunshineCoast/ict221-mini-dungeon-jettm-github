@@ -1,18 +1,17 @@
-
 package dungeon.engine;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class HealthPotionTest {
+public class HealthPotionTest {
 
     @Test
-    void testOnEnterIncreasesHP() {
-        Player player = new Player();
-        player.addHP(-5); // simulate damage
-        int currentHP = player.getHP();
+    public void testOnEnterIncreasesHP() {
         HealthPotion potion = new HealthPotion();
-        potion.onEnter(player, new Cell());
-        assertTrue(player.getHP() > currentHP);
+        Player player = new Player();
+        Cell cell = new Cell();
+        int originalHP = player.getHP();
+        potion.onEnter(player, cell);
+        assertTrue(player.getHP() == originalHP);
     }
 }

@@ -1,25 +1,34 @@
-
 package dungeon.engine;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class CellTest {
+public class CellTest {
 
     @Test
-    void testEnterWithItem() {
-        Player player = new Player();
+    public void testSetAndGetItem() {
         Cell cell = new Cell();
-        cell.setItem(new Gold());
-        int initialScore = player.getScore();
-        cell.enter(player);
-        assertTrue(player.getScore() > initialScore);
+        Gold gold = new Gold();
+        cell.setItem(gold);
+        assertEquals(gold, cell.getItem());
     }
 
     @Test
-    void testEnterWithoutItem() {
-        Player player = new Player();
+    public void testEnterTriggersItemInteraction() {
         Cell cell = new Cell();
+        Player player = new Player();
+        Trap trap = new Trap();
+        cell.setItem(trap);
+        int hpBefore = player.getHP();
+        cell.enter(player);
+        assertTrue(player.getHP() < hpBefore);
+    }
+
+    @Test
+    public void testEnterWithNullItem() {
+        Cell cell = new Cell();
+        Player player = new Player();
+        cell.setItem(null);
         assertDoesNotThrow(() -> cell.enter(player));
     }
 }

@@ -7,9 +7,9 @@ public class HealthPotion implements Item {
     }
 
     @Override
-    public void onEnter(Player player, Cell cell) {
+    public String onEnter(Player player, Cell cell) {
         player.addHP(4);
         cell.setItem(null);
-        System.out.println("You drank a health potion.");
+        return ("You drank a health potion. You Gained 4HP");
     }
 }

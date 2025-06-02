@@ -2,7 +2,9 @@ package dungeon.engine;
 
 import javafx.scene.layout.StackPane;
 
-public class Cell extends StackPane{
+import java.io.Serializable;
+
+public class Cell extends StackPane implements Serializable {
     private Item item;
     private boolean isWall;
     private boolean isEntry;
@@ -34,12 +36,10 @@ public class Cell extends StackPane{
         this.item = item;
     }
 
-    public boolean isNull() {
-        return item == null;
-    }
-    public void enter(Player player) {
+    public String enter(Player player) {
         if (item != null) {
-            item.onEnter(player, this);
+            return item.onEnter(player, this);
         }
+        return "";
     }
 }

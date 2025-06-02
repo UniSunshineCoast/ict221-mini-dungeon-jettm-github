@@ -7,7 +7,7 @@ public class Ladder implements Item {
     }
 
     @Override
-    public void onEnter(Player player, Cell cell) {
-        System.out.println("You found the ladder and advanced to the next level or exited the dungeon.");
+    public String onEnter(Player player, Cell cell) {
+        return ("You found the ladder and advanced to the next level or exited the dungeon.");
     }
 }

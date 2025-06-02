@@ -1,15 +1,15 @@
-
 package dungeon.engine;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class LadderTest {
+public class LadderTest {
 
     @Test
-    void testOnEnterPrintsMessage() {
-        Player player = new Player();
+    public void testOnEnterDoesNotCrash() {
         Ladder ladder = new Ladder();
-        assertDoesNotThrow(() -> ladder.onEnter(player, new Cell()));
+        Player player = new Player();
+        Cell cell = new Cell();
+        assertDoesNotThrow(() -> ladder.onEnter(player, cell));
     }
 }

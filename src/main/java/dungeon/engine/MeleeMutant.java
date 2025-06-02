@@ -19,10 +19,10 @@ public class MeleeMutant implements Enemy {
     }
 
     @Override
-    public void onEnter(Player player, Cell cell) {
+    public String onEnter(Player player, Cell cell) {
         player.addHP(-getDamage());
         player.addScore(2);
         cell.setItem(null);
-        System.out.println("You defeated a melee mutant.");
+        return ("You defeated a melee mutant. You lost 2HP");
     }
 }

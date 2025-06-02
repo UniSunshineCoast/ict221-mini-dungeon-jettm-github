@@ -1,18 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
 
-<BorderPane prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dungeon.gui.Controller">
-    <padding>
-        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-    </padding>
+<BorderPane xmlns:fx="http://javafx.com/fxml" xmlns="http://javafx.com/javafx/17.0.2" fx:controller="dungeon.gui.Controller">
+    <left>
+        <VBox spacing="10" alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
+            <HBox alignment="CENTER">
+                <Button text="UP" onAction="#moveUp" />
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="LEFT" onAction="#moveLeft" />
+                <Button text="RIGHT" onAction="#moveRight" />
+            </HBox>
+
+            <HBox alignment="CENTER">
+                <Button text="DOWN" onAction="#moveDown" />
+            </HBox>
+
+            <Label text="Difficulty:" />
+            <TextField fx:id="difficultyInput" promptText="Enter difficulty (0-10)" />
+            <Button text="Start Game" onAction="#startGame" />
+            <Button text="Save Game" onAction="#saveGame" />
+            <Button text="Load Game" onAction="#loadGame" />
+
+            <Label fx:id="statusLabel" text="Status: " wrapText="true" />
+        </VBox>
+    </left>
 
     <center>
-        <GridPane fx:id="gridPane" prefHeight="400.0" prefWidth="400.0" BorderPane.alignment="CENTER">
-
+        <GridPane fx:id="mapGrid" hgap="2" vgap="2" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+            </padding>
         </GridPane>
     </center>
 
-
+    <bottom>
+        <VBox spacing="5" BorderPane.alignment="CENTER">
+            <TextArea fx:id="logArea" prefRowCount="5" wrapText="true" editable="false" promptText="Game log will appear here..." />
+            <Label text="Top 5 Scores:" />
+            <ListView fx:id="scoreList" prefHeight="100" />
+        </VBox>
+    </bottom>
 </BorderPane>
